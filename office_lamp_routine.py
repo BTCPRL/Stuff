@@ -12,7 +12,7 @@ from lifxlan import LifxLAN
 from lifxlan.light import Light
 
 # Paths
-_BLOCK_FILE_ = 'C:/Users/Alberto/AppData/Roaming/SmartHome/office_lamp_block'
+_BLOCK_FILE_ = '/home/pi/Dev/SmartHome/office_lamp_block'
 
 # Office Lamp data
 _office_lamp_MAC_ = 'd0:73:d5:3e:44:c3'
@@ -74,12 +74,15 @@ def get_office_lamp():
     If the light is not connected, it returns False
     """
     try:
-        mac_for_os = _office_lamp_MAC_.replace(':', '-')
-        office_lamp_ip = get_lamp_ip(mac_for_os)
-        office_lamp = Light(
-            mac_addr=_office_lamp_MAC_,
-            ip_addr=office_lamp_ip
-        )
+        lights = LifxLAN().get_lights()
+        office_lamp = [l for l in lights if l.mac_addr == _office_lamp_MAC_][0]
+        # Ips are hard and decided to use built-in method instead
+        # mac_for_os = _offlightice_lamp_MAC_.replace(':', '-')
+        # office_lamp_ip = get_lamp_ip(_office_lamp_MAC_)
+        # office_lamp = Light(
+        #     mac_addr=_office_lamp_MAC_,
+        #     ip_addr=office_lamp_ip
+        # )
         return office_lamp
     except:
         return False
@@ -89,11 +92,12 @@ def get_lamp_ip(mac_addr):
     """ In a extremely hacky way, it will ping the network and extract the
     ip of the office lamp using it's MAC address.
     This is very hardcoded and will likely fail at some point
+    NOT USED ANYMORE
     """
     network_devices = subprocess.check_output(['arp', '-a'])
 
     # Hacky as hacky can get
-    ip_to_format = network_devices.split(mac_addr)[0].split('192')[-1]
+    ip_to_format = network_devices.split(mac_addr)[0].split('(192')[-1].split(')')[0]
     ip = '192{}'.format(ip_to_format).strip()  # removing white spaces
 
     return ip
@@ -138,13 +142,6 @@ def main():
         print "{} file not found. Aborting light change".format(_BLOCK_FILE_)
         return False
 
-    # Check if the lamp is on
-    office_lamp = get_office_lamp()
-    # office_lamp.set_color(GREEN, 50000)
-    if not office_lamp:
-        print "Office lamp not found. Aborting light change"
-        return False
-
     # load saved state of lamp
     saved_block = load_current_hour_block()
 
@@ -152,6 +149,17 @@ def main():
     current_hr = time.localtime().tm_hour
     current_block = get_current_time_block(current_hr)
     if not current_block:
+        return False
+
+    # No need to continue if lamp doesn't need an update
+    if saved_block == current_block:
+        return False
+
+    # Check if the lamp is on
+    office_lamp = get_office_lamp()
+
+    if not office_lamp:
+        print "Office lamp not found. Aborting light change"
         return False
 
     # If blocks are different, update the color
