@@ -97,7 +97,8 @@ def get_lamp_ip(mac_addr):
     network_devices = subprocess.check_output(['arp', '-a'])
 
     # Hacky as hacky can get
-    ip_to_format = network_devices.split(mac_addr)[0].split('(192')[-1].split(')')[0]
+    ip_to_format = network_devices.split(
+        mac_addr)[0].split('(192')[-1].split(')')[0]
     ip = '192{}'.format(ip_to_format).strip()  # removing white spaces
 
     return ip
@@ -162,11 +163,10 @@ def main():
         print "Office lamp not found. Aborting light change"
         return False
 
-    # If blocks are different, update the color
-    if saved_block != current_block:
-        new_color = get_color_from_schedule(current_hr)
-        office_lamp.set_color(new_color, 50000)
-        update_saved_block(current_block)  # also update saved block
+    # Update the color
+    new_color = get_color_from_schedule(current_hr)
+    office_lamp.set_color(new_color, 50000)
+    update_saved_block(current_block)  # also update saved block
 
     # TODO: Implement what if lamp turns on in the same block but with
     #  wrong color, is this even possible?
