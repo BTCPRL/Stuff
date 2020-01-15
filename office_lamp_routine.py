@@ -68,7 +68,7 @@ def get_color_from_schedule(hour):
         return COLD_WHITE
 
     if hour in NIGHT:
-        return PINK
+        return BLUE
 
     if hour in MIDNIGHT:
         return PURPLE_SOFT
