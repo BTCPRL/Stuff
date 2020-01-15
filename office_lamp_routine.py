@@ -36,15 +36,17 @@ WARM_WHITE = [65535, 262, 60000, 3000]
 GOLD = [58275, 0, 65535, 2500]
 
 # Time Blocks
-MID_MORNING = range(3, 7)  # 3am to 6am
-MORNING = range(6, 11)  # 6am to 10am
-DAY = range(10, 18)  # 10am to 5pm
-NIGHT = range(17, 22)  # 5pm to 10pm
-MIDNIGHT = [0, 1, 2, 3, 22, 23, 24]  # 10pm to 3am
+MORNING = range(4, 8)  # 4am to 7am
+MID_MORNING = range(8, 12)  # 8am to 11am
+DAY = range(12, 16)  # 11am to 3pm
+MID_DAY = range(16, 20)  # 4pm to 7pm
+NIGHT = range(20, 24)  # 8pm to 11pm
+MIDNIGHT = [0, 1, 2, 3, 24]  # 12am to 3am
 time_blocks = {
-    'MID_MORNING': MID_MORNING,
     'MORNING': MORNING,
+    'MID_MORNING': MID_MORNING,
     'DAY': DAY,
+    'MID_DAY': MID_DAY,
     'NIGHT': NIGHT,
     'MIDNIGHT': MIDNIGHT,
 }
@@ -53,17 +55,20 @@ time_blocks = {
 def get_color_from_schedule(hour):
     """ Checks the time_blocks and returns a color
     """
-    if hour in MID_MORNING:
+    if hour in MORNING:
         return GREEN_SOFT
 
-    if hour in MORNING:
+    if hour in MID_MORNING:
         return CYAN
 
     if hour in DAY:
+        return WARM_WHITE
+
+    if hour in MID_DAY:
         return COLD_WHITE
 
     if hour in NIGHT:
-        return WARM_WHITE
+        return PINK
 
     if hour in MIDNIGHT:
         return PURPLE_SOFT
